@@ -21,5 +21,5 @@ jobs:
     - name: Get Agent(s) from S3 
       run: aws s3 cp . s3://gh-golden-bucket/LinuxCrowdstrike.rpm
 
-    -name: List current path of Agents
-     run: ls *.rpm
+    - name: List current path of Agents
+      run: ls *.rpm
