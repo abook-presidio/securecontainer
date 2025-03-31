@@ -1,0 +1,25 @@
+name: Agent from S3
+on: 
+  push:
+    branches:
+      - main
+
+jobs: 
+  get-agents:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkous Repository
+      uses: actions/checkout/@v3
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+         aws-access-key-id: ${{ secrets.bucket_access }}
+         aws-secret-access-key: ${{ secrets.bucket_secret }}
+         aws-region: us-east-1 
+
+    - name: Get Agent(s) from S3 
+      run: aws s3 cp . s3://gh-golden-bucket/LinuxCrowdstrike.rpm
+
+    -name: List current path of Agents
+     run: ls *.rpm
