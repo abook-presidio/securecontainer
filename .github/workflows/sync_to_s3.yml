@@ -11,14 +11,20 @@ jobs:
     - name: Checkous Repository
       uses: actions/checkout/@v3
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        role-to-assume: arn:aws:iam::182968331794:role/GHActions-S3ReadOnly
-        aws-region: us-east-1
+#    - name: Configure AWS Credentials
+#      uses: aws-actions/configure-aws-credentials@v1
+#      with:
+#        role-to-assume: arn:aws:iam::182968331794:role/GHActions-S3ReadOnly
+#        aws-region: us-east-1
 
-    - name: Get Agent(s) from S3 
-      run: aws s3 cp s3://gh-golden-bucket/LinuxCrowdstrike.rpm .
+#    - name: Get Agent(s) from S3 
+#      run: aws s3 cp s3://gh-golden-bucket/LinuxCrowdstrike.rpm .
 
     - name: List current path of Agents
       run: ls *.rpm
+
+    - name: Build container 
+      runs:
+      using: 'docker'
+      image: 'Dockerfile'
+   
