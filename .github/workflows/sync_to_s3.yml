@@ -16,7 +16,7 @@ jobs:
       #uses: aws-actions/configure-aws-credentials@v4
       #with:
       run:  |
-         aws configure set aws_access_key_id ${{ secrets.bucket_access}}
+         echo ${{ secrets.bucket_access}}
          aws configure set aws_secret_access_key ${{ secrets.bucket_secret }}
      #    aws-access-key-id: ${{ secrets.bucket_access }}
      #    aws-secret-access-key: ${{ secrets.bucket_secret }}
