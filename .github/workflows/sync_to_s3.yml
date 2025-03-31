@@ -11,7 +11,7 @@ jobs:
     - name: Checkous Repository
       uses: actions/checkout/@v3
 
-     - name: Configure AWS Credentials
+    - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         role-to-assume: arn:aws:iam::182968331794:role/GHActions-S3ReadOnly
