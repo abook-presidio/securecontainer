@@ -1,5 +1,5 @@
 name: Agent from S3
-on: 
+on:
   push:
     branches:
       - main
@@ -12,35 +12,36 @@ on:
         description: AWS Account ID
         default: "182968331794"
         type: string
-jobs: 
+
+jobs:
   get-agents:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkous Repository
-      uses: actions/checkout/@v3
+      - name: Checkous Repository
+        uses: actions/checkout/@v3
 
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-##       role-to-assume: arn:aws:iam::182968331794:role/GHActions-S3ReadOnly
-        aws-access-key-id: ${{ secrets.BUCKET_KEY }}
-        aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
-        aws-region: us-east-1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          ##       role-to-assume: arn:aws:iam::182968331794:role/GHActions-S3ReadOnly
+          aws-access-key-id: ${{ secrets.BUCKET_KEY }}
+          aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
+          aws-region: us-east-1
 
-    - name: Get Agent(s) from S3 
-      run: aws s3 cp s3://gh-golden-bucket/LinuxCrowdstrike.rpm .
+      - name: Get Agent(s) from S3
+        run: aws s3 cp s3://gh-golden-bucket/LinuxCrowdstrike.rpm .
 
-    - name: List current path of Agents
-      run: ls *.rpm
+      - name: List current path of Agents
+        run: ls *.rpm
 
-   - name: Add CS agent to Dockerfile
-     run: echo 'ADD LINE HERE'
+      - name: Add CS agent to Dockerfile
+        run: echo 'ADD LINE HERE'
 
-   - name: Build Docker Container 
-     run: docker build  . sdk:8.0-alpine
+      - name: Build Docker Container
+        run: docker build  . sdk:8.0-alpine
 
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
-      with:
-        registries: ${{ inputs.aws_account_id }} 
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: ${{ inputs.aws_account_id }}
