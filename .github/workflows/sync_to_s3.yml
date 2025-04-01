@@ -12,6 +12,10 @@ on:
         description: AWS Account ID
         default: "182968331794"
         type: string
+        container_name:
+          description: current container
+          default: "sdk:8.0-alpine"
+          type: string
 
 jobs:
   get-agents:
@@ -38,7 +42,7 @@ jobs:
         run: echo 'ADD LINE HERE'
 
       - name: Build Docker Container
-        run: docker build  . sdk:8.0-alpine
+        run: docker build -t sdk:8.0-alpine
 
       - name: Login to Amazon ECR
         id: login-ecr
