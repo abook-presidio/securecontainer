@@ -58,7 +58,7 @@ jobs:
 
   scan_with_wiz:
     needs: get-agents
-    runs-on: macos-13 #ubuntu-latest
+    runs-on: ubuntu-22.04 #ubuntu-latest
     container:
       image: pquery/wizbuilder:latest
       credentials:
