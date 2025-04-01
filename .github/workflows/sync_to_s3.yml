@@ -55,7 +55,6 @@ jobs:
         id: build
         run: |
           docker build -t sdk:8.0-alpine .
-          echo ::set-output name=exit_code::$?
 
   scan_with_wiz:
     needs: get-agents
