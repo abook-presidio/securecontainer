@@ -52,9 +52,13 @@ jobs:
         run: cat Dockerfile
 
       - name: Build Docker Container
-        run: docker build -t sdk:8.0-alpine .
+        id: build
+        run: |
+          docker build -t sdk:8.0-alpine .
+          echo ::set-output name=exit_code::$?
 
   scan_with_wiz:
+    needs: get-agents
     runs-on: ubuntu-latest
     container:
       image: pquery/wizbuilder:latest
@@ -70,6 +74,7 @@ jobs:
         run: docker images
 
   build_and_push:
+    needs: scan_with_wiz
     runs-on: ubuntu-latest
     steps:
       - name: Login to Amazon ECR
