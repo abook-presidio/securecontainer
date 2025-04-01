@@ -12,6 +12,9 @@ on:
         description: AWS Account ID
         default: "182968331794"
         type: string
+      container_name: 
+        description: current container
+        default: "sdk:8.0-alpine"
 jobs: 
   get-agents:
     runs-on: ubuntu-latest
@@ -32,6 +35,12 @@ jobs:
 
     - name: List current path of Agents
       run: ls *.rpm
+
+   - name: Add CS agent to Dockerfile
+     run: echo 'ADD LINE HERE'
+
+   - name: Build Docker Container 
+     run: docker build  . $container_name
 
     - name: Login to Amazon ECR
       id: login-ecr
