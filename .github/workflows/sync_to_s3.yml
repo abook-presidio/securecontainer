@@ -36,8 +36,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
           aws-region: us-east-1
 
-      - name: Get Agent(s) from S3
-        run: aws s3 cp s3://gh-golden-bucket/LinuxCrowdstrike.rpm .
+      # - name: Get Agent(s) from S3
+      #   run: aws s3 cp s3://gh-golden-bucket/LinuxCrowdstrike.rpm .
 
       # - name: List current path of Agents
       #  run: ls *.rpm
@@ -45,8 +45,8 @@ jobs:
       # - name: check for Dockerfile
       #  run: ls Dockerfile
 
-      - name: Add CS agent line to Dockerfile
-        run: echo "RUN ${{inputs.cs_agent}}" > Dockerfile
+      # - name: Add CS agent line to Dockerfile
+      #   run: echo "RUN ${{inputs.cs_agent}}" > Dockerfile
 
       - name: CAT DF
         run: cat Dockerfile
@@ -54,6 +54,24 @@ jobs:
       - name: Build Docker Container
         run: docker build -t sdk:8.0-alpine .
 
+  scan_with_wiz:
+    runs-on: ubuntu-latest
+    container:
+      image: pquery/wizbuilder:latest
+      credentials:
+        username: pquery
+        password: ${{ secrets.DH_PW}}
+
+    steps:
+      - name: Log into Wiz
+        run: wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
+
+      - name: List Containers
+        run: docker images
+
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
