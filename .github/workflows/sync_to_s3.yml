@@ -45,8 +45,8 @@ jobs:
       # - name: check for Dockerfile
       #  run: ls Dockerfile
 
-      - name: Add CS agent to Dockerfile
-        run: echo "COPY ${{inputs.cs_agent}}" > Dockerfile
+      - name: Add CS agent line to Dockerfile
+        run: echo "RUN ${{inputs.cs_agent}}" > Dockerfile
 
       - name: CAT DF
         run: cat Dockerfile
