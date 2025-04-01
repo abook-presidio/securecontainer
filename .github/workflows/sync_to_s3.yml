@@ -38,11 +38,14 @@ jobs:
       - name: List current path of Agents
         run: ls *.rpm
 
+      - name: check for Dockerfile
+        run: ls Dockerfile
+
       - name: Add CS agent to Dockerfile
         run: echo 'ADD LINE HERE'
 
       - name: Build Docker Container
-        run: docker build -t sdk:8.0-alpine
+        run: docker build -t sdk:8.0-alpine .
 
       - name: Login to Amazon ECR
         id: login-ecr
