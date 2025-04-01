@@ -60,7 +60,8 @@ jobs:
     needs: get-agents
     runs-on: ubuntu-22.04-arm #ubuntu-latest
     container:
-      image: pquery/wizbuilder:latest
+      #image: pquery/wizbuilder:latest
+      image: wiziocli.azurecr.io/wizcli:latest
       credentials:
         username: pquery
         password: ${{ secrets.DH_PW}}
