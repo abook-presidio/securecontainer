@@ -64,6 +64,13 @@ jobs:
         run: curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
         shell: bash
 
+      - name: test wiz cli 1
+        run: wizcli --version
+
+      - name: test wiz cli 2
+        run: ./wizcli --version
+        shell: bash
+
       - name: Log into Wiz
         run: ./wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
         shell: bash
