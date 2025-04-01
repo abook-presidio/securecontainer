@@ -16,6 +16,10 @@ on:
           description: current container
           default: "sdk:8.0-alpine"
           type: string
+      cs_agent:
+        description: the current CrowdStrike agent
+        default: "LinuxCrowdstrike.rpm"
+        type: string
 
 jobs:
   get-agents:
@@ -35,14 +39,17 @@ jobs:
       - name: Get Agent(s) from S3
         run: aws s3 cp s3://gh-golden-bucket/LinuxCrowdstrike.rpm .
 
-      - name: List current path of Agents
-        run: ls *.rpm
+      # - name: List current path of Agents
+      #  run: ls *.rpm
 
-      - name: check for Dockerfile
-        run: ls Dockerfile
+      # - name: check for Dockerfile
+      #  run: ls Dockerfile
 
       - name: Add CS agent to Dockerfile
-        run: echo 'ADD LINE HERE'
+        run: echo "COPY ${{inputs.cs_agent}}" > Dockerfile
+
+      - name: CAT DF
+        run: cat Dockerfile
 
       - name: Build Docker Container
         run: docker build -t sdk:8.0-alpine .
