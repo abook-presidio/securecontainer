@@ -59,16 +59,14 @@ jobs:
   scan_with_wiz:
     needs: get-agents
     runs-on: ubuntu-22.04-arm #ubuntu-latest
-    container:
-      #image: pquery/wizbuilder:latest
-      image: wiziocli.azurecr.io/wizcli:latest
-      credentials:
-        username: pquery
-        password: ${{ secrets.DH_PW}}
-
     steps:
+      - name: Download wiz-cli binary
+        run: curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
+        shell: bash
+
       - name: Log into Wiz
-        run: wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
+        run: ./wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
+        shell: bash
 
       - name: List Containers
         run: docker images
