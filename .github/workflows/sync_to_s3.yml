@@ -20,9 +20,13 @@ on:
         description: the current CrowdStrike agent
         default: "LinuxCrowdstrike.rpm"
         type: string
+      backend_dynamodb_table:
+        description: DynamoDB table that holds base containers
+        default: "base_containers"
+        type: string
 
 jobs:
-  get-agents:
+  scan-sign:
     runs-on: ubuntu-latest
     steps:
       - name: Checkous Repository
@@ -71,22 +75,12 @@ jobs:
   #       run: curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
   #       shell: bash
 
-  #     # - name: test wiz cli 1
-  #     #   run: wizcli --version
-
-  #     - name: test wiz cli 2
-  #       run: ./wizcli --version
-  #       shell: bash
-
   #     - name: Log into Wiz
   #       run: ./wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
   #       shell: bash
 
-  #     - name: List Containers
-  #       run: docker images
-
   build_and_push_aws:
-    needs: get-agents
+    needs: scan-sign
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS Credentials
@@ -104,7 +98,7 @@ jobs:
           registries: ${{ inputs.aws_account_id }}
 
   build_and_push_azure:
-    needs: get-agents
+    needs: scan-sign
     runs-on: ubuntu-latest
     steps:
       - name: Configure Azure Credentials
@@ -127,6 +121,13 @@ jobs:
           aws-access-key-id: ${{ secrets.BUCKET_KEY }}
           aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
           aws-region: us-east-1
+
+      - name: Grab today's date
+        id: makedate
+        run: echo "::set-output name=TODAYS_DATE::$( date +"%Y-%m-%d" )"
+
+      - name: Use the date
+        run: echo "${{ steps.makedate.outputs.TODAYS_DATE }}"
 
       - name: Write to DynamoDB
         run: echo "Dynamo Command"
