@@ -125,7 +125,7 @@ jobs:
       - name: Grab today's date
         id: makedate
         #run: echo "::set-output name=TODAYS_DATE::$( date +"%Y-%m-%d" )"
-        run: echo "{TODAYS_DATE}=$( date +"%Y-%m-%d" )" >> $GITHUB_OUTPUT
+        run: echo "{TODAYS_DATE}={ $( date +"%Y-%m-%d" )}" >> $GITHUB_OUTPUT
 
       - name: Use the date
         run: echo "${{ steps.makedate.outputs.TODAYS_DATE }}"
