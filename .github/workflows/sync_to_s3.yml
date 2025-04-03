@@ -94,6 +94,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
           aws-region: us-east-1
 
+      - name: list docker images
+        run: docker images
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -114,11 +117,11 @@ jobs:
     needs: [build_and_push_aws, build_and_push_azure]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout/@v3
+      # - name: Checkout Repository
+      #   uses: actions/checkout/@v3
 
       - name: test item.json pt1
-        run: cat item.json
+        run: touch item.json
 
       - name: Grab lastest container value
         run: echo "CURRENT_CONTAINER=7" >> $GITHUB_ENV
