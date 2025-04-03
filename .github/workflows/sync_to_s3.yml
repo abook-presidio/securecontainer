@@ -115,7 +115,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Grab lastest container value
-        run: echo "CURRENT_CONTAINER=debian-slim" >> $GITHUB_ENV
+        run: echo "CURRENT_CONTAINER=7" >> $GITHUB_ENV
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -127,13 +127,28 @@ jobs:
 
       - name: Grab today's date
         id: makedate
-        #run: echo "::set-output name=TODAYS_DATE::$( date +"%Y-%m-%d" )"
         run: echo "BUILD_TIME=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
-        #run: echo "{TODAYS_DATE}={ $( date +"%Y-%m-%d" )}" >> $GITHUB_OUTPUT
-        ## New output not working
 
       - name: Use the date
         run: echo "Ready to use the date $BUILD_TIME"
 
       - name: Write to DynamoDB
         run: echo "The current container is $CURRENT_CONTAINER"
+
+      - name: Put DynamoDB Item
+        uses: step-security/dynamodb-actions@v1
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: ${{ secrets.BUCKET_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUCKET_KEY }}
+        with:
+          operation: put
+          region: us-east-1
+          table: ${{ inputs.backend_dynamodb_table }}
+          item: |
+            { 
+              key: "day",
+              value: $CURRENT_CONTAINER,
+              last_updated: $BUILD_TIME
+            }
