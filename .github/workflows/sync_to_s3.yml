@@ -12,10 +12,10 @@ on:
         description: AWS Account ID
         default: "182968331794"
         type: string
-        container_name:
-          description: current container
-          default: "sdk:8.0-alpine"
-          type: string
+      container_name:
+        description: current container
+        default: "sdk:8.0-alpine"
+        type: string
       cs_agent:
         description: the current CrowdStrike agent
         default: "LinuxCrowdstrike.rpm"
@@ -154,4 +154,4 @@ jobs:
 
       - name: Put DynamoDB Item
         #run: aws dynamodb put-item --table-name base_containers --item "{\"day\":{\"N\":\"$CURRENT_CONTAINER\"}, \"last_updated\":{\"S\":\"$BUILD_TIME\"}}"
-        run: aws dynamodb update-item --table-name base_containers --item "{\"day\":{\"N\":\"$CURRENT_CONTAINER\"}, \"last_updated\":{\"S\":\"$BUILD_TIME\"}}"
+        run: aws dynamodb update-item --table-name base_containers --key "{\"day\":{\"N\":\"$CURRENT_CONTAINER\"}, \"last_updated\":{\"S\":\"$BUILD_TIME\"}}"
