@@ -152,4 +152,5 @@ jobs:
         run: echo "Ready to use the date $BUILD_TIME"
 
       - name: Put DynamoDB Item
-        run: aws dynamodb put-item --table-name base_containers --item "{\"day\":{\"N\":\"$CURRENT_CONTAINER\"}, \"last_updated\":{\"S\":\"$BUILD_TIME\"}}"
+        #run: aws dynamodb put-item --table-name base_containers --item "{\"day\":{\"N\":\"$CURRENT_CONTAINER\"}, \"last_updated\":{\"S\":\"$BUILD_TIME\"}}"
+        run: aws dynamodb update-item --table-name base_containers --item "{\"day\":{\"N\":\"$CURRENT_CONTAINER\"}, \"last_updated\":{\"S\":\"$BUILD_TIME\"}}"
