@@ -26,6 +26,7 @@ on:
         type: string
       current_container:
         description: Current Base container being processed
+        default: "public.ecr.aws/docker/library/debian-12-slim"
         type: string
 
 jobs:
@@ -94,8 +95,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
           aws-region: us-east-1
 
+      - name: Checkous Repository
+        uses: actions/checkout/@v3
+
       - name: list docker images
         run: docker images
+
+      - name: get repo tag
+        run: echo $(echo ${{ inputs.current_container }} | awk -F '/' '{print $NF}')
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -117,12 +124,6 @@ jobs:
     needs: [build_and_push_aws, build_and_push_azure]
     runs-on: ubuntu-latest
     steps:
-      # - name: Checkout Repository
-      #   uses: actions/checkout/@v3
-
-      - name: test item.json pt1
-        run: touch item.json
-
       - name: Grab lastest container value
         run: echo "CURRENT_CONTAINER=7" >> $GITHUB_ENV
 
@@ -141,21 +142,5 @@ jobs:
       - name: Use the date
         run: echo "Ready to use the date $BUILD_TIME"
 
-      - name: Write to DynamoDB
-        run: echo "The current container is $CURRENT_CONTAINER"
-
       - name: Put DynamoDB Item
         run: aws dynamodb put-item --table-name base_containers --item "{\"day\":{\"N\":\"$CURRENT_CONTAINER\"}, \"last_updated\":{\"S\":\"$BUILD_TIME\"}}"
-
-      #  table: ${{ inputs.backend_dynamodb_table }}
-      # - name: Write DynamoDB items
-      #   run: |
-      #     echo " \
-      #       { \
-      #         key: "day", \
-      #         value: $CURRENT_CONTAINER, \
-      #         last_updated: $BUILD_TIME \
-      #       }" >> item.json
-
-      - name: test item.json
-        run: cat item.json
