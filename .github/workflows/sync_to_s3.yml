@@ -24,6 +24,9 @@ on:
         description: DynamoDB table that holds base containers
         default: "base_containers"
         type: string
+      current_container:
+        description: Current Base container being processed
+        type: string
 
 jobs:
   scan-sign:
@@ -112,7 +115,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Grab lastest container value
-        run: echo "VALUE HERE"
+        run: echo "debian-slim" >> ${{ inputs.current_container }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -133,4 +136,4 @@ jobs:
         run: echo "Ready to use the date $BUILD_TIME"
 
       - name: Write to DynamoDB
-        run: echo "Dynamo Command"
+        run: echo "The current container is " + ${{ inputs.current_container }}
