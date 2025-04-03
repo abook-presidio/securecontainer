@@ -60,7 +60,7 @@ jobs:
         run: cat Dockerfile
 
       - name: get repo tag
-        run: echo $(echo ${{ inputs.current_container }} | awk -F '/' '{print $NF}')
+        run: echo $(echo ${{ inputs.container_name }} | awk -F '/' '{print $NF}')
 
       - name: Build Docker Container AWS
         id: build
@@ -135,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Grab lastest container value
-        run: echo "CURRENT_CONTAINER=7" >> $GITHUB_ENV
+        run: echo "CURRENT_CONTAINER=3" >> $GITHUB_ENV
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
