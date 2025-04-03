@@ -130,7 +130,8 @@ jobs:
         run: echo "ACR push command"
 
   update_dynamo_values:
-    needs: [build_and_push_aws, build_and_push_azure]
+    #needs: [build_and_push_aws, build_and_push_azure]
+    needs: build_and_push_azure
     runs-on: ubuntu-latest
     steps:
       - name: Grab lastest container value
