@@ -114,6 +114,9 @@ jobs:
     needs: [build_and_push_aws, build_and_push_azure]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkous Repository
+        uses: actions/checkout/@v3
+
       - name: Grab lastest container value
         run: echo "CURRENT_CONTAINER=7" >> $GITHUB_ENV
 
