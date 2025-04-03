@@ -115,7 +115,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Grab lastest container value
-        run: echo "debian-slim" >> ${{ inputs.current_container }}
+        run: echo "CURRENT_CONTAINER=debian-slim" >> $GITHUB_ENV
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -136,4 +136,4 @@ jobs:
         run: echo "Ready to use the date $BUILD_TIME"
 
       - name: Write to DynamoDB
-        run: echo "The current container is " + ${{ inputs.current_container }}
+        run: echo "The current container is $CURRENT_CONTAINER"
