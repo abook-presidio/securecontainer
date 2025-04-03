@@ -150,7 +150,7 @@ jobs:
       #  table: ${{ inputs.backend_dynamodb_table }}
       - name: Write DynamoDB items
         run: |
-          cat " \ 
+          echo " \ 
             { \
               key: "day", \
               value: $CURRENT_CONTAINER, \
