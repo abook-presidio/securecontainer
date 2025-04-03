@@ -144,18 +144,18 @@ jobs:
       - name: Write to DynamoDB
         run: echo "The current container is $CURRENT_CONTAINER"
 
-      # - name: Put DynamoDB Item
-      #   run: aws dynamodb put-item --table-name ${{ inputs.backend_dynamodb_table }}
+      - name: Put DynamoDB Item
+        run: aws dynamodb put-item --table-name ${{ inputs.backend_dynamodb_table }} --item "{ key: \"day\",  value: $CURRENT_CONTAINER, last_updated: $BUILD_TIME }" 
 
       #  table: ${{ inputs.backend_dynamodb_table }}
-      - name: Write DynamoDB items
-        run: |
-          echo " \ 
-            { \
-              key: "day", \
-              value: $CURRENT_CONTAINER, \
-              last_updated: $BUILD_TIME \
-            }" >> item.json
+      # - name: Write DynamoDB items
+      #   run: |
+      #     echo " \ 
+      #       { \
+      #         key: "day", \
+      #         value: $CURRENT_CONTAINER, \
+      #         last_updated: $BUILD_TIME \
+      #       }" >> item.json
 
       - name: test item.json
         run: cat item.json
