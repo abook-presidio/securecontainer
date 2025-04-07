@@ -7,7 +7,14 @@ on:
     types: [run-build]
 jobs:
   build:
+    name: "Build and scan with Wiz"
     runs-on: ubuntu-latest
+    env:
+      SCAN_PATH: "."
+      POLICY: "Default IaC policy" # Set desired cli policy here
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkous Repository
         uses: actions/checkout/@v3
@@ -18,3 +25,12 @@ jobs:
           aws-access-key-id: ${{ secrets.BUCKET_KEY }}
           aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
           aws-region: us-east-1
+
+      - name: Download Wiz CLI
+        run: curl -o wizcli https://downloads.wiz.io/latest/wizcli-linux-amd64 && chmod +x wizcli
+
+      - name: Authenticate to Wiz
+        run: ./wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
+
+      - name: Run wiz CLI IaC scan
+        run: ./wizcli docker scan --dockerfile Dockerfile --policy "$POLICY"
