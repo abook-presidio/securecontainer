@@ -1,0 +1,155 @@
+name: Agent from S3
+on:
+  workflow_dispatch:
+    inputs:
+      aws_region:
+        description: Target AWS Region
+        default: "us-east-1"
+        type: string
+      aws_account_id:
+        description: AWS Account ID
+        default: "182968331794"
+        type: string
+      container_name:
+        description: current container
+        default: "sdk:8.0-alpine"
+        type: string
+      cs_agent:
+        description: the current CrowdStrike agent
+        default: "LinuxCrowdstrike.rpm"
+        type: string
+      backend_dynamodb_table:
+        description: DynamoDB table that holds base containers
+        default: "base_containers"
+        type: string
+      current_container:
+        description: Current Base container being processed
+        default: "public.ecr.aws/docker/library/debian-12-slim"
+        type: string
+
+jobs:
+  scan-sign:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkous Repository
+        uses: actions/checkout/@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          ##       role-to-assume: arn:aws:iam::182968331794:role/GHActions-S3ReadOnly
+          aws-access-key-id: ${{ secrets.BUCKET_KEY }}
+          aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
+          aws-region: us-east-1
+
+      # - name: Get Agent(s) from S3
+      #   run: aws s3 cp s3://gh-golden-bucket/LinuxCrowdstrike.rpm .
+
+      # - name: List current path of Agents
+      #  run: ls *.rpm
+
+      # - name: check for Dockerfile
+      #  run: ls Dockerfile
+
+      # - name: Add CS agent line to Dockerfile
+      #   run: echo "RUN ${{inputs.cs_agent}}" > Dockerfile
+
+      - name: CAT DF
+        run: cat Dockerfile
+
+      - name: get repo tag
+        run: echo $(echo ${{ inputs.container_name }} | awk -F '/' '{print $NF}')
+
+      - name: Build Docker Container AWS
+        id: build
+        run: |
+          docker build -t sdk:8.0-alpine .
+
+      - name: Wiz Docker Image Vulnerability Scan
+        uses: aleksei-aikashev/wizcli-wrapper@v1
+        with:
+          skip_iac_scan: "skip"
+          wiz_client_id: ${{ secrets.WIZ_CLIENT_ID }}
+          wiz_client_secret: ${{ secrets.WIZ_CLIENT_SECRET }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: ${{ inputs.aws_account_id }}
+
+  # scan_with_wiz:
+  #   needs: get-agents
+  #   runs-on: ubuntu-22.04-arm #ubuntu-latest
+  #   steps:
+  #     - name: Download wiz-cli binary
+  #       run: curl -o wizcli https://wizcli.app.wiz.io/latest/wizcli && chmod +x wizcli
+  #       shell: bash
+
+  #     - name: Log into Wiz
+  #       run: ./wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
+  #       shell: bash
+
+  # build_and_push_aws:
+  #   needs: scan-sign
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         ##       role-to-assume: arn:aws:iam::182968331794:role/GHActions-S3ReadOnly
+  #         aws-access-key-id: ${{ secrets.BUCKET_KEY }}
+  #         aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
+  #         aws-region: us-east-1
+
+  # - name: Checkous Repository
+  #   uses: actions/checkout/@v3
+
+  # - name: list docker images
+  #   run: docker images
+
+  # - name: get repo tag
+  #   run: echo $(echo ${{ inputs.current_container }} | awk -F '/' '{print $NF}')
+
+  # - name: Login to Amazon ECR
+  #   id: login-ecr
+  #   uses: aws-actions/amazon-ecr-login@v2
+  #   with:
+  #     registries: ${{ inputs.aws_account_id }}
+
+  build_and_push_azure:
+    needs: scan-sign
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Azure Credentials
+        run: echo "Add Azure Credentials"
+
+      - name: Push to ACR repo
+        run: echo "ACR push command"
+
+  update_dynamo_values:
+    #needs: [build_and_push_aws, build_and_push_azure]
+    needs: build_and_push_azure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Grab lastest container value
+        run: echo "CURRENT_CONTAINER=3" >> $GITHUB_ENV
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          ##       role-to-assume: arn:aws:iam::182968331794:role/GHActions-S3ReadOnly
+          aws-access-key-id: ${{ secrets.BUCKET_KEY }}
+          aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
+          aws-region: us-east-1
+
+      - name: Grab today's date
+        id: makedate
+        run: echo "BUILD_TIME=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Use the date
+        run: echo "Ready to use the date $BUILD_TIME"
+
+      - name: Put DynamoDB Item
+        #run: aws dynamodb put-item --table-name base_containers --item "{\"day\":{\"N\":\"$CURRENT_CONTAINER\"}, \"last_updated\":{\"S\":\"$BUILD_TIME\"}}"
+        run: aws dynamodb update-item --table-name base_containers --key "{\"day\":{\"N\":\"$CURRENT_CONTAINER\"}, \"last_updated\":{\"S\":\"$BUILD_TIME\"}}"
