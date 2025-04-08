@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SCAN_PATH: "."
-      POLICY: "Default IaC policy" # Set desired cli policy here
+      POLICY: "Default vulnerabilities policy" # Set desired cli policy here
+      TAG: "docker-tag"
     defaults:
       run:
         shell: bash
@@ -26,11 +27,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
           aws-region: us-east-1
 
+      - name: Build the Docker image
+        run: cd $SCAN_PATH && docker build . --tag $TAG
+
       - name: Download Wiz CLI
         run: curl -o wizcli https://downloads.wiz.io/latest/wizcli-linux-amd64 && chmod +x wizcli
 
       - name: Authenticate to Wiz
-        run: ./wizcli auth --id ${{ secrets.WIZ_CLIENT_ID }} --secret ${{ secrets.WIZ_CLIENT_SECRET }}
+        run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+        env:
+          WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+          WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
 
-      - name: Run wiz CLI IaC scan
-        run: ./wizcli docker scan --dockerfile Dockerfile --policy "$POLICY"
+      - name: Run wiz cli docker image scan
+        run: ./wizcli docker scan --image $TAG --policy "$POLICY"
