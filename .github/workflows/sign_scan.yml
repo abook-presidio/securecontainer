@@ -41,6 +41,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
           aws-region: us-east-1
 
+      - name: Test external script
+        run: ./scripts/urlparser.sh $pull_url
+
       - name: prepare ECR repo name based on the docker repo url
         shell: bash
         run: |
