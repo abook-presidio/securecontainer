@@ -1,0 +1,63 @@
+name: Sign and Scan
+env:
+  owner: abook-presidio
+  repo: securecontainer
+  pull_url: "public.ecr.aws/lambda/nodejs:18-x86_64"
+on:
+  workflow_dispatch:
+    inputs:
+      aws_region:
+        description: Target AWS Region
+        default: "us-east-1"
+        type: string
+      aws_account_id:
+        description: AWS Account ID
+        default: "182968331794"
+        type: string
+
+jobs:
+  build:
+    name: "Build and scan with Wiz"
+    runs-on: ubuntu-latest
+    env:
+      SCAN_PATH: "."
+      POLICY: "Default vulnerabilities policy" # Set desired cli policy here
+      TAG: "docker-tag"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkous Repository
+        uses: actions/checkout/@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.BUCKET_KEY }}
+          aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
+          aws-region: us-east-1
+
+      - name: prepare ECR repo name based on the Github repository
+        shell: bash
+        run: |
+          set -eux
+          # lowercase the name
+          repo="${GITHUB_REPOSITORY,,}"
+
+          # replace / with _
+          echo "ECR_REPO_NAME=${repo//\//_}" >> $GITHUB_ENV
+
+      - name: Build the Docker image
+        run: cd $SCAN_PATH && docker build . --tag $TAG
+
+      - name: Download Wiz CLI
+        run: curl -o wizcli https://downloads.wiz.io/latest/wizcli-linux-amd64 && chmod +x wizcli
+
+      - name: Authenticate to Wiz
+        run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+        env:
+          WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+          WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
+
+      - name: Run wiz cli docker image scan
+        run: ./wizcli docker scan --image $TAG --policy "$POLICY"
