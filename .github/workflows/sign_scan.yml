@@ -37,15 +37,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.BUCKET_SECRET }}
           aws-region: us-east-1
 
-      - name: prepare ECR repo name based on the Github repository
+      - name: prepare ECR repo name based on the docker repo url
         shell: bash
         run: |
           set -eux
-          # lowercase the name
-          repo="${pull_url,,}"
+          # grab the third value of the url
+          tail=`echo $pull_url | cut -d"/" -f3`
+          # Remove the colon
+          repo=`echo "$tail" | sed -r 's/://g'`
 
           # replace / with _
-          echo "ECR_REPO_NAME=${repo//\//_}" >> $GITHUB_ENV
+          echo "ECR_REPO_NAME=${repo}" >> $GITHUB_ENV
 
       - name: Build the Docker image
         run: cd $SCAN_PATH && docker build . --tag $TAG
@@ -73,3 +75,9 @@ jobs:
           # Common inputs
           wiz_client_id: ${{ secrets.WIZ_CLIENT_ID }}
           wiz_client_secret: ${{ secrets.WIZ_CLIENT_SECRET }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registries: ${{ inputs.aws_account_id }}
