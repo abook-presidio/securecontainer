@@ -1,2 +1,2 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine
+FROM public.ecr.aws/lambda/nodejs:18-x86_64
 # testing
