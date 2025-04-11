@@ -20,7 +20,18 @@ repo=$(echo "$tail" | sed -r 's/://g')
 
 # Extract the version number and the base name
 version=$(echo "$repo" | sed -n 's/.*\([0-9]\{1,\}\.[0-9]\{1,\}\).*/\1/p')
+
+# Check if version is empty and try another pattern
+if [ -z "$version" ]; then
+   version=$(echo "$repo" | sed -n 's/.*\([0-9]\{1,\}-[a-z0-9_]\{1,\}\).*/\1/p')
+fi
+
 base_name=$(echo "$repo" | sed "s/[0-9]\{1,\}\.[0-9]\{1,\}//g" | sed 's/^-//')
+
+# If version is still empty, adjust base_name to exclude the version part
+if [ -z "$version" ]; then
+   base_name=$(echo "$repo" | sed 's/[0-9]\{1,\}-[a-z0-9_]\{1,\}//g' | sed 's/^-//')
+fi
 
 retval=$?
 if [ "$retval" == 0 ]; then
