@@ -51,6 +51,8 @@ jobs:
           # pulling the two returned values into variables
           ver=`echo $repo |cut -d' ' -f2`
           rep=`echo $repo |cut -d' ' -f1`
+          print("Repo: $rep")
+          print("Version: $ver")
 
 
           # Put the Repo Name into the environment
