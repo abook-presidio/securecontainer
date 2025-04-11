@@ -45,7 +45,7 @@ jobs:
         run: chmod +x scripts/*.sh
 
       - name: Test external script
-        run: ./scripts/urlparser.sh $pull_url
+        run: repo=`./scripts/versionpuller.sh $pull_url`
 
       - name: prepare ECR repo name based on the docker repo url
         shell: bash
