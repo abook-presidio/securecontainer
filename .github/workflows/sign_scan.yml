@@ -55,7 +55,7 @@ jobs:
           echo "TAG_ID=${ver}" >> $GITHUB_ENV
 
       - name: Build the Docker image
-        run: cd $SCAN_PATH && docker build . --tag $TAG_ID
+        run: cd $SCAN_PATH && docker build . --tag ${{ env.TAG_ID }}
 
       - name: Download Wiz CLI
         run: curl -o wizcli https://downloads.wiz.io/latest/wizcli-linux-amd64 && chmod +x wizcli
