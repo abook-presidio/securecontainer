@@ -51,6 +51,7 @@ jobs:
           # pulling the two returned values into variables
           ver=`echo $repo |cut -d' ' -f2`
           rep=`echo $repo |cut -d' ' -f1`
+          echo "Org REPO: $repo"
           echo "Repo: $rep"
           echo "Version: $ver"
 
