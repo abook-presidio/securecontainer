@@ -14,10 +14,10 @@ on:
         description: AWS Account ID
         default: "182968331794"
         type: string
-      image_tag:
-        description: Tag to apply to images.
-        type: string
-        default: snapshot-artifact
+    #   image_tag:
+    #     description: Tag to apply to images.
+    #     type: string
+    #     default: snapshot-artifact
 
 jobs:
   build:
@@ -45,22 +45,17 @@ jobs:
         run: chmod +x scripts/*.sh
 
       - name: Test external script
-        run: repo=`./scripts/versionpuller.sh $pull_url`
-
-      - name: prepare ECR repo name based on the docker repo url
-        shell: bash
         run: |
-          set -eux
-          # grab the third value of the url
-          tail=`echo $pull_url | cut -d"/" -f3`
-          # Remove the colon
-          repo=`echo "$tail" | sed -r 's/://g'`
+          repo=`./scripts/versionpuller.sh $pull_url`
 
-          # replace / with _
-          echo "ECR_REPO_NAME=${repo}" >> $GITHUB_ENV
+          # Put the Repo Name into the environment
+          echo "ECR_REPO_NAME=${rep}" >> $GITHUB_ENV
+
+          # Put the version into the environment 
+          echo "TAG_ID=${ver}" >> $GITHUB_ENV
 
       - name: Build the Docker image
-        run: cd $SCAN_PATH && docker build . --tag $TAG
+        run: cd $SCAN_PATH && docker build . --tag $TAG_ID
 
       - name: Download Wiz CLI
         run: curl -o wizcli https://downloads.wiz.io/latest/wizcli-linux-amd64 && chmod +x wizcli
@@ -106,10 +101,10 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_REPO_NAME }}
-          IMAGE_TAG: ${{ inputs.image_tag }}
+          # IMAGE_TAG: ${{ inputs.image_tag }}
         run: |
-          docker build . -t "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY}}:${{ env.IMAGE_TAG }}"
-          docker push "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY}}:${{ env.IMAGE_TAG }}"
-          echo "IMAGE ${{ env.IMAGE_TAG }} is pushed to ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_TAG }}"
-          echo "image_tag=${{ env.IMAGE_TAG }}" 
-          echo "full_image=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY}}:${{ env.IMAGE_TAG }}"
+          docker build . -t "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY}}:${{ env.TAG_ID }}"
+          docker push "${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY}}:${{ env.TAG_ID }}"
+          echo "IMAGE ${{ env.TAG_ID }} is pushed to ${{ env.ECR_REGISTRY }}/${{ env.TAG_ID }}"
+          echo "image_tag=${{ env.TAG_ID }}" 
+          echo "full_image=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY}}:${{ env.TAG_ID }}"
