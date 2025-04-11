@@ -49,7 +49,7 @@ jobs:
           repo=`./scripts/versionpuller.sh $pull_url`
 
           # pulling the two returned values into variables
-          ver=`echo `$repo | cut -f1`
+          ver=`echo $repo |cut -d' ' -f2`
           rep=`echo $repo |cut -d' ' -f1`
 
 
